@@ -1,6 +1,9 @@
+import { Button } from "@/components/button";
 import { Steps } from "@/components/steps";
 import { Welcome } from "@/components/welcome";
-import { Text, TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+
+import { router } from "expo-router";
 
 export default function App() {
   return (
@@ -9,9 +12,9 @@ export default function App() {
 
       <Steps />
 
-      <TouchableOpacity style={{ backgroundColor: "red" }}>
-        <Text>Continuea</Text>
-      </TouchableOpacity>
+      <Button onPress={() => router.navigate("/home")}>
+        <Button.Title>Começar</Button.Title>
+      </Button>
     </View>
   );
 }
