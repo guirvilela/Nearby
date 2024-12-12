@@ -11,6 +11,6 @@ export async function getPlaces(category: string) {
     return response.data;
   } catch (error) {
     console.log(error);
-    Alert.alert("Categorias", "Não foi possível carregar os lugares");
+    Alert.alert("Lugares", "Não foi possível carregar os lugares");
   }
 }

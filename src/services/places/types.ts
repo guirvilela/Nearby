@@ -5,4 +5,6 @@ export interface PlacesResponse {
   coupons: number;
   cover: string;
   address: string;
+  latitude: number;
+  longitude: number;
 }
