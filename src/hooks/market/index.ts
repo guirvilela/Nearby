@@ -34,7 +34,6 @@ export function useMarketController() {
 
       if (data) {
         form.set("marketData")(data);
-        console.log(data);
       }
     } catch (error) {
       console.log("error"),
@@ -103,7 +102,7 @@ export function useMarketController() {
     if (params.id) {
       fetchMarket();
     }
-  }, [params.id]);
+  }, [params.id, form.value.coupon]);
 
   return { form, qrLockLog, handleOpenCamera, handleUseCoupon };
 }

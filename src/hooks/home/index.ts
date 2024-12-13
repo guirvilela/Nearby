@@ -27,12 +27,8 @@ export function useHomeController() {
     if (data) {
       form.setAll({
         categories: data,
-        selectedCategory: data[0]?.id || "",
+        selectedCategory: data[0].id,
       });
-
-      if (data[0]?.id) {
-        fetchMarkets();
-      }
     }
   }, [form.value]);
 

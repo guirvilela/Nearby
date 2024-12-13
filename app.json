@@ -3,6 +3,7 @@
     "name": "nearby",
     "slug": "nearby",
     "version": "1.0.0",
+    "icon": "./assets/images/splash-icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -17,11 +18,18 @@
       ]
     },
     "splash": {
-      "image": "./assets/images/splash.png",
-      "backgroundColor": "#1B1B1F"
+      "image": "./assets/images/splash-icon.png",
+      "backgroundColor": "#257F49"
     },
     "android": {
       "package": "com.guirvilela.nearby"
-    }
+    },
+    // "ios": {
+    //   "supportsTablet": true,
+    //    "splash": {
+    //   "image": "./assets/images/splash-icon.png",
+    //   "resizeMode": "contain",
+    //   "backgroundColor": "#ffffff"
+    // }
   }
 }
