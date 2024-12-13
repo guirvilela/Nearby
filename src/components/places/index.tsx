@@ -4,13 +4,15 @@ import { router } from "expo-router";
 import { useRef } from "react";
 import { Text, useWindowDimensions } from "react-native";
 import { Place } from "../place";
+import { Skeleton } from "../skeleton";
 import { styled } from "./styles";
 
 interface PlacesProps {
   data: PlacesResponse[];
+  loading: boolean;
 }
 
-export function Places({ data }: PlacesProps) {
+export function Places({ data, loading }: PlacesProps) {
   const dimensions = useWindowDimensions();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -31,14 +33,21 @@ export function Places({ data }: PlacesProps) {
       <BottomSheetFlatList
         data={data}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Place
-            data={item}
-            onPress={() =>
-              router.push({ pathname: "/market/[id]", params: { id: item.id } })
-            }
-          />
-        )}
+        renderItem={({ item }) =>
+          loading ? (
+            <Skeleton />
+          ) : (
+            <Place
+              data={item}
+              onPress={() =>
+                router.push({
+                  pathname: "/market/[id]",
+                  params: { id: item.id },
+                })
+              }
+            />
+          )
+        }
         contentContainerStyle={styled.content}
         ListHeaderComponent={() => (
           <Text style={styled.title}>Explore locais perto de você</Text>

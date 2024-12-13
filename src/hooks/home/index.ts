@@ -3,6 +3,7 @@ import { CategoriesResponse } from "@/services/categories/types";
 import { getPlaces } from "@/services/places";
 import { PlacesResponse } from "@/services/places/types";
 import * as Location from "expo-location";
+import { debounce } from "lodash";
 import React, { useCallback } from "react";
 import { useForm } from "../form";
 
@@ -11,6 +12,7 @@ interface HomeForm {
   selectedCategory: string;
   markets: PlacesResponse[];
   location: Location.LocationObject | null;
+  loading: boolean;
 }
 
 export function useHomeController() {
@@ -19,6 +21,7 @@ export function useHomeController() {
     selectedCategory: "",
     markets: [],
     location: null,
+    loading: false,
   });
 
   const fetchCategories = useCallback(async () => {
@@ -32,24 +35,74 @@ export function useHomeController() {
     }
   }, [form.value]);
 
-  const fetchMarkets = useCallback(async () => {
-    const data = await getPlaces(form.value.selectedCategory);
+  const fetchMarkets = useCallback(
+    async (selectedCategory: string) => {
+      try {
+        form.set("loading")(true);
 
-    if (!form.value.selectedCategory) return;
+        const data = await getPlaces(selectedCategory);
 
-    if (data) {
-      form.setAll({
-        markets: data,
-      });
-    }
-  }, [form.value]);
+        if (data) {
+          const currentLocation = {
+            latitude: -23.561187293883442,
+            longitude: -46.656451388116494,
+          };
+
+          const filteredMarkets = data.filter((market) => {
+            const distance = calculateDistance(
+              currentLocation.latitude,
+              currentLocation.longitude,
+              market.latitude,
+              market.longitude
+            );
+            return distance <= 2;
+          });
+
+          form.set("markets")(filteredMarkets);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar mercados:", error);
+      } finally {
+        form.set("loading")(false);
+      }
+    },
+    [form.value]
+  );
+
+  const debouncedFetchMarkets = useCallback(debounce(fetchMarkets, 300), [
+    fetchMarkets,
+    form.value,
+  ]);
 
   const handleSelectCategory = useCallback(
     async (idCategory: string) => {
       form.set("selectedCategory")(idCategory);
+
+      debouncedFetchMarkets(idCategory);
     },
-    [form.value]
+    [form.value, debouncedFetchMarkets]
   );
+
+  function calculateDistance(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) {
+    const R = 6371; // Raio da Terra em km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Retorna a distância em km
+  }
 
   // const getLocation = useCallback(async () => {
   //   let { granted } = await Location.requestForegroundPermissionsAsync();
@@ -67,7 +120,7 @@ export function useHomeController() {
 
   React.useEffect(() => {
     if (form.value.selectedCategory) {
-      fetchMarkets();
+      debouncedFetchMarkets(form.value.selectedCategory);
     }
   }, [form.value.selectedCategory]);
 

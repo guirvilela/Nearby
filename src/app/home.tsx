@@ -2,7 +2,7 @@ import { Categories } from "@/components/categories";
 import { Places } from "@/components/places";
 import { useHomeController } from "@/hooks/home";
 import { Text, View } from "react-native";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Circle, Marker } from "react-native-maps";
 
 import { colors, fontFamily } from "@/styles/theme";
 import { router } from "expo-router";
@@ -25,7 +25,6 @@ export default function Home() {
       />
 
       <MapView
-        key="static-map"
         style={{ flex: 1 }}
         initialRegion={{
           latitude: currentLocation.latitude,
@@ -34,10 +33,29 @@ export default function Home() {
           longitudeDelta: 0.01,
         }}
       >
-        {form.value.markets.map((marker) => (
+        <Circle
+          center={{
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          }}
+          radius={2000}
+          strokeColor="rgba(0, 150, 255, 0.7)"
+          fillColor="rgba(0, 150, 255, 0.2)"
+        />
+
+        <Marker
+          identifier="current"
+          coordinate={{
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          }}
+          image={require("@/assets/location.png")}
+        />
+
+        {form.value.markets.map((marker, i) => (
           <Marker
             key={marker.id}
-            identifier={marker.id}
+            identifier={`marker-map-${marker.id}-${i}`}
             coordinate={{
               latitude: marker.latitude,
               longitude: marker.longitude,
@@ -52,32 +70,30 @@ export default function Home() {
                 })
               }
             >
-              <View>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: colors.gray[600],
-                    fontFamily: fontFamily.medium,
-                  }}
-                >
-                  {marker.name}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color: colors.gray[600],
-                    fontFamily: fontFamily.regular,
-                  }}
-                >
-                  {marker.address}
-                </Text>
-              </View>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: colors.gray[600],
+                  fontFamily: fontFamily.medium,
+                }}
+              >
+                {marker.name}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: colors.gray[600],
+                  fontFamily: fontFamily.regular,
+                }}
+              >
+                {marker.address}
+              </Text>
             </Callout>
           </Marker>
         ))}
       </MapView>
 
-      <Places data={form.value.markets} />
+      <Places data={form.value.markets} loading={form.value.loading} />
     </View>
   );
 }
