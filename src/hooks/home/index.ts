@@ -2,6 +2,7 @@ import { getCategories } from "@/services/categories";
 import { CategoriesResponse } from "@/services/categories/types";
 import { getPlaces } from "@/services/places";
 import { PlacesResponse } from "@/services/places/types";
+import * as Location from "expo-location";
 import React, { useCallback } from "react";
 import { useForm } from "../form";
 
@@ -9,6 +10,7 @@ interface HomeForm {
   categories: CategoriesResponse[];
   selectedCategory: string;
   markets: PlacesResponse[];
+  location: Location.LocationObject | null;
 }
 
 export function useHomeController() {
@@ -16,6 +18,7 @@ export function useHomeController() {
     categories: [],
     selectedCategory: "",
     markets: [],
+    location: null,
   });
 
   const fetchCategories = useCallback(async () => {
@@ -32,8 +35,12 @@ export function useHomeController() {
   const fetchMarkets = useCallback(async () => {
     const data = await getPlaces(form.value.selectedCategory);
 
+    if (!form.value.selectedCategory) return;
+
     if (data) {
-      form.set("markets")(data);
+      form.setAll({
+        markets: data,
+      });
     }
   }, [form.value]);
 
@@ -44,8 +51,18 @@ export function useHomeController() {
     [form.value]
   );
 
+  // const getLocation = useCallback(async () => {
+  //   let { granted } = await Location.requestForegroundPermissionsAsync();
+
+  //   if (granted) {
+  //     let location = await Location.getCurrentPositionAsync({});
+  //     form.set("location")(location);
+  //   }
+  // }, [form.value]);
+
   React.useEffect(() => {
     fetchCategories();
+    // getLocation();
   }, []);
 
   React.useEffect(() => {
